@@ -356,3 +356,100 @@
   (newtons-method
    (lambda (y) (- (square y) x))
    1.0))
+
+; Exercise 1.40
+
+(define (cubic a b c)
+  (lambda (x)
+    (+ (* a (cube x)) (* b (square x)) c)))
+
+; Exercise 1.41
+
+(define (double f)
+  (lambda (x) (f (f x))))
+
+; Exercise 1.42
+
+(define (compose f g)
+  (lambda (x) (f (g x))))
+
+; Exercise 1.43
+
+(define (repeated f n)
+  (if (< n 1)
+      (lambda (x) x)
+      (compose f (repeated f (- n 1)))))
+
+; Exercise 1.44
+
+(define (smooth f)
+  (define (avg3 x y z)
+    (/ (+ x y z) 3))
+  (lambda (x)
+    (avg3 (f (+ x dx))
+          (f x)
+          (f (- x dx)))
+       ))
+
+(define (smooth-n f n)
+  (lambda (x)
+    ((repeated smooth n) x)))
+
+; Exercise 1.45
+
+(define (average-damp f)
+  (lambda (x) (average x (f x))))
+
+(define (sqrt5 x)
+  (fixed-point (average-damp (lambda (y) (/ x y))) 
+               1.0))
+
+(define (cube-root x)
+  (fixed-point (average-damp (lambda (y) (/ x (square y)))) 
+               1.0))
+
+(define (fourth-root x)
+  (fixed-point ((repeated average-damp 2) (lambda (y) (/ x (cube y))))
+               1.0))
+
+(define (log-base-n x n)
+  (/ (log x) (log n)))
+
+(define (log2 x)
+  (log-base-n x 2))
+
+(define (nth-root x n)
+  (let ((damp-n (floor (log2 n))))
+    (fixed-point ((repeated average-damp damp-n) 
+                  (lambda (y) (/ x (exp2 y (- n 1)))))
+                 1.0)))
+
+; Exercise 1.46
+
+(define (iterative-improve good-enough? improve)
+  (lambda (guess)
+    (define (try guess)
+      (let ((next-guess (improve guess)))
+        (if (good-enough? guess next-guess)
+            next-guess
+            (try next-guess))))
+    (try guess)))
+
+(define (good-enough? x y)
+  (< (abs (- x y)) 0.0001))
+
+(define (sqrt6 x)
+  ((iterative-improve 
+    good-enough?
+    (average-damp (lambda (y) (/ x y))))
+   1.0))
+
+(define (fixed-point2 f guess)
+  ((iterative-improve
+    good-enough?
+    f)
+   guess))
+
+(define (sqrt7 x)
+  (fixed-point2 (average-damp (lambda (y) (/ x y)))
+                1.0))
