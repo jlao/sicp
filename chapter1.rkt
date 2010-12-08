@@ -156,6 +156,7 @@
 (define (sum3 term a next b)
   (accumulate + 0 term a next b))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; 1.3.3 Procedures as General Methods ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -193,3 +194,81 @@
            (search f b a))
           (else
            (display "Values are not of opposite sign")))))
+
+; Finds fixed point of a function by successive application
+
+(define tolerance 0.00001)
+
+(define (fixed-point f first-guess)
+  (define (close-enough? x y)
+    (< (abs (- x y)) tolerance))
+  (define (try guess)
+    (let ((next (f guess)))
+      (if (close-enough? next guess)
+          next
+          (try next))))
+  (try first-guess))
+
+; Defining sqrt in terms of a fixed point
+
+(define (sqrt3 x)
+  (fixed-point (lambda (y) (average y (/ x y))) 
+               1.0))
+
+; Exercise 1.37 - Continued fractions
+
+(define (cont-frac n d k)
+  (define (helper i)
+    (if (> i k)
+        0.0
+        (/ (n i)
+           (+ (d i)
+              (helper (+ i 1))))))
+  (helper 1))
+
+; Iterative version
+
+(define (cont-frac2 n d k)
+  (define (iter k acc)
+    (if (< k 1)
+        acc
+        (iter (- k 1)
+              (/ (n k)
+                 (+ (d k) acc)))))
+  (iter k 0.0))
+
+(define phi (/ (+ 1.0 (sqrt 5)) 2))
+
+; Exercise 1.38
+
+(define (e-approx k)
+  (+ (cont-frac2 
+      (lambda (i) 1.0)
+      (lambda (i)
+        (let ((shift (- i 2)))
+          (if (= (modulo shift 3) 0)
+              (* (+ (/ shift 3) 1) 2)
+              1)))
+      k)
+     2))
+
+; Exercise 1.39
+
+(define (neg x)
+  (- 0 x))
+
+(define (tan-cf x k)
+  (cont-frac2
+   (lambda (i)
+     (if (= i 1)
+         x
+         (neg (square x))))
+   (lambda (i)
+     (- (* 2 i) 1))
+   k))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; 1.3.4 Procedures as Returned Values ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
