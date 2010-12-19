@@ -104,3 +104,63 @@
   (display ", ")
   (display (pair-second x))
   (display ")"))
+
+; Exercise 2.17
+
+(define (last-pair l)
+  (define (iter l)
+    (if (null? (cdr l))
+        l
+        (last-pair (cdr l))))
+  (if (null? l)
+      (list)
+      (iter l)))
+
+; Exercise 2.18
+
+(define (reverse2 l)
+  (define (iter lst acc)
+    (if (null? lst)
+        acc
+        (iter (cdr lst)
+              (cons (car lst) acc))))
+  (iter l '()))
+
+; Exercise 2.19
+
+(define (cc total coins)
+  (cond ((= total 0) 1)
+        ((or (< total 0 ) (null? coins)) 0)
+        (else (+ (cc (- total (car coins)) coins)
+                 (cc total (cdr coins))))))
+
+(define us-coins (list 50 25 10 5 1))
+
+; Exercise 2.20
+
+(define (get-parity n)
+  (modulo n 2))
+
+(define (same-parity . lst)
+  (let ((parity (get-parity (car lst))))
+    (define (helper lst)
+      (cond ((null? lst) '())
+            ((= (get-parity (car lst)) parity)
+             (cons (car lst) (helper (cdr lst))))
+            (else (helper (cdr lst)))))
+    (helper lst)))
+
+; Trees
+
+(define (count-leaves tree)
+  (cond ((null? tree) 0)
+        ((pair? tree) (+ (count-leaves (car tree))
+                         (count-leaves (cdr tree))))
+        (else 1)))
+
+; Exercise 2.27
+
+(define (deep-reverse lst)
+  (if (not (pair? lst))
+      lst
+      (reverse (map deep-reverse lst))))
