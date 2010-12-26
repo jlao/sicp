@@ -164,3 +164,21 @@
   (if (not (pair? lst))
       lst
       (reverse (map deep-reverse lst))))
+
+
+; 2.2.3  Sequences as Conventional Interfaces
+
+(define (filter pred lst)
+  (if (null? lst)
+      '()
+      (if (pred (car lst))
+          (cons (car lst)
+                (filter pred (cdr lst)))
+          (filter pred (cdr lst)))))
+
+(define (accumulate op init seq)
+  (if (null? seq)
+      init
+      (op (car seq)
+          (accumulate op init (cdr seq)))))
+
